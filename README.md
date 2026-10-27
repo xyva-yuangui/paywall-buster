@@ -91,10 +91,9 @@ learning only.
 
 | 站点 | 结果 | 正文 | 可见段 | 可滚高度 | 广告残留 |
 |---|---|---|---|---|---|
-| reuters.com（China AI bubble） | ✅ | 6657 字 | 31/31 | 4829 px | 0 |
-| reuters.com（Xi opens plenum） | ✅ | 4677 字 | 20/20 | 4228 px | 0 |
-| telegraph.co.uk（BBC £400k） | ✅ | 5883 字（修前 670） | 37/53 | 5774 px（修前 291） | 0 |
-| washingtonpost.com（Woodward） | ✅ | DOM 1651 + 回填 28803 字 | — | 20053 px | 0 |
+| reuters.com | ✅ | 6657 字 | 31/31 | 4829 px | 0 |
+| telegraph.co.uk | ✅ | 5883 字（修前 670） | 37/53 | 5774 px（修前 291） | 0 |
+| washingtonpost.com| ✅ | DOM 1651 + 回填 28803 字 | — | 20053 px | 0 |
 | stratechery.com | ✅ | 1790 字 | 15/17 | 2041 px | 0 |
 | thepaper.cn / 36kr.com | ✅ | 2782 / 2505 字 | 105/105 · 25/25 | 正常 | 0 |
 | wired.com | ⚠️ 部分 | 4494 字 | 6/39 | 4287 px | 0 |
