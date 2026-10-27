@@ -1,0 +1,88 @@
+{
+  "manifest_version": 3,
+  "name": "Paywall Buster · 多平台订阅弹窗与广告阻断器",
+  "version": "2.0.0",
+  "description": "浏览器扩展技术学习项目：演示订阅弹层清理、正文修复和广告阻断；仅限非商业学习、研究与技术交流，请遵守目标网站条款和当地法律。",
+  "minimum_chrome_version": "105",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Paywall Buster",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "src/static-hide.css",
+        "src/ads.css"
+      ],
+      "js": [
+        "src/profiles.js",
+        "src/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": false
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/profiles.js",
+        "src/repair.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true,
+      "match_about_blank": false
+    }
+  ],
+  "commands": {
+    "toggle-site": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y"
+      },
+      "description": "在本站开启 / 关闭 Paywall Buster"
+    },
+    "read-mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
+      "description": "进入纯文本阅读模式"
+    }
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ads",
+        "enabled": true,
+        "path": "rules/ads.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+/* SPDX-FileCopyrightText: 2026 Paywall Buster contributors */
+/* SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
+* { box-sizing: border-box; }
+body {
+  width: 340px; margin: 0; padding: 14px 14px 10px;
+  background: #11141b; color: #e6e8ef;
+  font: 13px/1.5 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand h1 { font-size: 14px; margin: 0; letter-spacing: .2px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #e2342c; box-shadow: 0 0 8px #e2342c88; }
+.ver { color: #5d6577; font-size: 11px; }
+.host {
+  font-size: 11px; color: #8b93a7; background: #1a1e28; border: 1px solid #242a36;
+  border-radius: 6px; padding: 6px 9px; margin-bottom: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 2px; border-bottom: 1px solid #1c212b; cursor: pointer;
+}
+.row small { color: #6b7385; font-size: 10.5px; }
+.sw {
+  appearance: none; width: 38px; height: 21px; border-radius: 11px; background: #2b3140;
+  position: relative; cursor: pointer; transition: background .15s; flex: none;
+}
+.sw:checked { background: #e2342c; }
+.sw::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 17px; height: 17px;
+  border-radius: 50%; background: #fff; transition: transform .15s;
+}
+.sw:checked::after { transform: translateX(17px); }
+.btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 12px 0 10px; }
+.btns button {
+  padding: 8px 4px; border-radius: 7px; border: 1px solid #2b3140; background: #1a1e28;
+  color: #dfe3ec; font-size: 12px; cursor: pointer;
+}
+.btns button:hover { background: #232936; border-color: #3a4356; }
+.btns button.on { background: #e2342c; border-color: #e2342c; color: #fff; }
+.stat { display: flex; align-items: baseline; gap: 6px; font-size: 12px; color: #8b93a7; margin-bottom: 6px; }
+.stat b { color: #ff6b5e; font-size: 15px; }
+.stat .sep { color: #39404f; }
+.stat #adCount { color: #ffc857; }
+.log {
+  max-height: 148px; overflow: auto; background: #0d1016; border: 1px solid #1c212b;
+  border-radius: 7px; padding: 6px; font-size: 11px; color: #9aa3b6;
+}
+.log .empty { color: #4d5464; text-align: center; padding: 10px 0; }
+.log .item { padding: 4px 5px; border-bottom: 1px solid #161b23; }
+.log .item:last-child { border-bottom: 0; }
+.log .sel { color: #cfd6e4; word-break: break-all; }
+.log .sel.ad { color: #ffc857; }
+.log .why { color: #5d6577; }
+footer { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; min-height: 18px; }
+.link { background: none; border: 0; color: #5d6577; font-size: 11px; cursor: pointer; padding: 0; }
+.link:hover { color: #9aa3b6; text-decoration: underline; }
+#msg { font-size: 11px; color: #57c08a; }
+pre#diagbox {
+  margin: 10px 0 0;
+  max-height: 220px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0d1016;
+  color: #b9c2d0;
+  font: 11px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+}
+.btns { flex-wrap: wrap; }
+
+/* v2.0 平台档案徽标 */
+.prof {
+  margin: -4px 0 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(120, 200, 140, 0.14);
+  color: #7ed492;
+  font: 500 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}

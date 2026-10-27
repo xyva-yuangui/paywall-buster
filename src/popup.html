@@ -1,0 +1,60 @@
+<!-- SPDX-FileCopyrightText: 2026 Paywall Buster contributors -->
+<!-- SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 -->
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Paywall Buster</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Paywall Buster</h1>
+    </div>
+    <span class="ver">v2.0.0</span>
+  </header>
+
+  <div class="host" id="host">—</div>
+  <div class="prof" id="prof" hidden></div>
+
+  <label class="row">
+    <span>总开关</span>
+    <input type="checkbox" id="enabled" class="sw">
+  </label>
+  <label class="row">
+    <span>本站启用</span>
+    <input type="checkbox" id="siteOn" class="sw">
+  </label>
+  <label class="row">
+    <span>拦截付费墙脚本<br><small>实验性，可能影响登录/支付</small></span>
+    <input type="checkbox" id="blockScripts" class="sw">
+  </label>
+
+  <div class="btns">
+    <button id="scan">立即清理</button>
+    <button id="pick">圈选元素</button>
+    <button id="read">阅读模式</button>
+    <button id="diag">诊断</button>
+  </div>
+
+  <pre id="diagbox" hidden></pre>
+
+  <div class="stat">
+    <span>已处置弹窗</span><b id="count">0</b>
+    <span class="sep">·</span>
+    <span>已屏蔽广告</span><b id="adCount">0</b>
+  </div>
+
+  <div class="log" id="log"><div class="empty">暂无记录</div></div>
+
+  <footer>
+    <button class="link" id="reset">清除本站手动规则</button>
+    <span id="msg"></span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

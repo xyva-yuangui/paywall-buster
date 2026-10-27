@@ -1,0 +1,312 @@
+/* SPDX-FileCopyrightText: 2026 Paywall Buster contributors */
+/* SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
+/* Paywall Buster — static-hide.css (v1.2)
+ *
+ * 设计原则（v1.0 的教训）：绝不对 [class*="paywall"] 这类宽泛特征做无差别
+ * display:none —— Reuters(Arc XP)、FT、WSJ 等站的【正文外层容器】本身就叫
+ * PaywallWrapper / paywall-content，一锅端会把整篇文章一起藏掉，表现就是
+ * "弹窗没了，正文也没了"。
+ *
+ * 所以这里只做两件事：
+ *   1) 隐藏【高置信度且不含正文】的层（用 :has() 做正文保护）
+ *   2) 解锁正文容器（去高度限制 / 去渐隐 / 去模糊）
+ * 其余所有判断交给 content.js 的评分引擎和 repair.js 的救援逻辑。
+ */
+
+/* ---------- A. 高置信度弹窗：窄选择器，且不含正文才隐藏 ---------- */
+[data-testid="paywall-modal"],
+[data-testid*="regwall-modal" i],
+[data-testid*="paywall-overlay" i],
+[class*="paywall-modal" i],
+[class*="paywallModal" i],
+[class*="PaywallOverlay" i],
+[class*="paywall-overlay" i],
+[class*="WallOverlay" i],
+[id*="paywall-modal" i],
+[id*="paywall-overlay" i],
+[class*="regwall-modal" i],
+[class*="meter-overlay" i],
+[class*="subscription-modal" i],
+[data-paywall-overlay],
+[data-paywall-modal] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ---------- B. 宽特征：只在"不像正文容器"时才隐藏 ---------- */
+/* 判据：不含 article / 不含 itemprop=articleBody / 没有相邻段落 / 没有 h1 */
+[class*="paywall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="pay-wall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[id*="paywall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[id*="pay-wall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="regwall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="registration-wall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="subscriber-wall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="subscriberwall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="subscription-wall" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="content-gate" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)),
+[class*="article-gate" i]:not(:has(article)):not(:has([itemprop="articleBody"])):not(:has(p + p)):not(:has(h1)) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ---------- C. 解锁滚动 ---------- */
+html.pb-unlock,
+html.pb-unlock body {
+  overflow: auto !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}
+html.pb-unlock body { position: static !important; touch-action: auto !important; }
+html.pb-unlock { position: static !important; }
+
+/* ---------- D. 正文容器解锁：高度限制 / 渐隐 / 模糊 / 分页截断 ---------- */
+article,
+main,
+[itemprop="articleBody"],
+[class*="article-body" i],
+[class*="articleBody" i],
+[class*="article__body" i],
+[class*="story-body" i],
+[data-testid*="ArticleBody" i],
+[class*="ArticleBody" i],
+[class*="article-content" i],
+[class*="articleContent" i] {
+  max-height: none !important;
+  overflow: visible !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  -webkit-line-clamp: unset !important;
+  filter: none !important;
+}
+
+/* ---------- D2. metered 裁剪层：包住正文的外层容器不得限高 ---------- */
+/* Reuters 实测：div.regular-article-layout-module__content-container__vBc5-
+   .regular-article-layout-module__restricted__d0vIv.paywall-B06
+   带 max-height:1219.5px + overflow:hidden，正文全在 DOM（scrollHeight 6946）但被裁到 1220px，
+   整页滚动范围只剩 752px —— 表现就是"弹窗没了，正文还是不出来"。只解锁"包含正文"的层。 */
+[class*="restricted" i]:has(article),
+[class*="restricted" i]:has([class*="article-body" i]),
+[class*="restricted" i]:has([itemprop="articleBody"]),
+[class*="paywall" i]:has(article),
+[class*="paywall" i]:has([class*="article-body" i]),
+[class*="paywall" i]:has([itemprop="articleBody"]),
+[data-pb-uncut] {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* 正文上的"渐隐到白"伪元素遮罩 */
+article::after,
+article::before,
+[itemprop="articleBody"]::after,
+[class*="article-body" i]::after {
+  background: transparent !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* ---------- E. repair.js 救援过的正文容器：强制可见 ---------- */
+[data-pb-rescued] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ---------- F. 内嵌数据回填出来的全文块 ---------- */
+#pb-fulltext {
+  display: block !important;
+  margin: 32px 0 64px !important;
+  padding: 24px 0 0 !important;
+  border-top: 1px solid rgba(127, 127, 127, 0.35) !important;
+  font: inherit !important;
+  color: inherit !important;
+  max-width: 720px !important;
+}
+#pb-fulltext .pb-ft-head {
+  font: 600 12px/1.6 system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  opacity: 0.55 !important;
+  margin-bottom: 16px !important;
+}
+#pb-fulltext p {
+  font: 400 18px/1.75 Georgia, "Times New Roman", "Songti SC", serif !important;
+  margin: 0 0 1.15em !important;
+  color: inherit !important;
+}
+
+/* ---------- G. 阅读模式浮层 ---------- */
+#pb-reader {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  background: #12141a !important;
+  color: #e8e8ee !important;
+  overflow: auto !important;
+  padding: 0 !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   J. 付费墙供应商弹层（v2.0 多平台段）
+
+   这些类名来自跨站复用的付费墙 SDK，同一套 DOM 会出现在几十家媒体上，
+   所以按"供应商"而不是"站点"投放。这里只放**绝无可能是正文**的模态/
+   遮罩/内联框；凡是可能包住正文的容器（Arc 的 PaywallWrapper、各家
+   restricted/clipped 类）一律不进这个无条件清单，交给 content.js 的
+   评分引擎与 repair.js 的祖先链解锁去判断。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Piano / Tinypass —— 最常见的一家（NYT、WSJ、Economist、Bloomberg 等） */
+#tp-modal,
+#tp-modal iframe,
+.tp-modal,
+.tp-backdrop,
+.tp-container,
+.tp-iframe,
+iframe[src*="tinypass.com"],
+iframe[src*="piano.io"],
+[data-piano-offer],
+[class*="tp-modal" i]:not(body):not(html),
+[class*="tp-backdrop" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* Poool */
+poool-widget,
+poool-popup,
+iframe[src*="poool.fr"],
+iframe[src*="poool.io"],
+[class*="poool-" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* OneCount / Zephr / Pelcro / Leaky Paywall / Memberful */
+#oc_paywall,
+.oc-paywall,
+#zephr-modal,
+[class*="zephr-" i]:not(body):not(html),
+#pelcro-root,
+iframe[src*="pelcro"],
+[class*="leaky_paywall" i]:not(body):not(html),
+[class*="memberful-" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* Substack / Ghost / Medium —— 常见于订阅制通讯与博客 */
+.subscription-watermark,
+.paywall-cta,
+.paywall-modal,
+[class*="paywall-bar" i],
+.gh-post-upgrade-cta,
+.gh-subscribe,
+[data-testid="paywall"],
+[class*="MeteredContent" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* 通用遮挡层：文案型会员提示（中文站为主）。用 :not(:has(...)) 保证
+   即使站点把正文塞进这些容器，也不会被整块隐藏。 */
+[class*="vip-mask" i],
+[class*="member-mask" i],
+[class*="member-wall" i],
+[class*="vip-wall" i],
+[class*="pay-mask" i],
+[class*="login-mask" i],
+[class*="readmore-mask" i],
+[class*="subscribe-modal" i],
+[class*="subscribe-dialog" i],
+[class*="subscription-modal" i],
+[class*="paywall-dialog" i] {
+  display: none !important;
+}
+
+/* 带 :has 保护的宽特征：只要容器里有正文段落，就不隐藏 */
+/* 这些类名通常只在弹窗里出现一个 <p> 文案；一旦里面有多段或 article，
+   说明站点把正文错标成了 mask，必须放行（宁可漏一个弹窗，不可再吃一次 v1.0 的亏）。 */
+[class*="vip-mask" i]:has(p + p),
+[class*="member-mask" i]:has(p + p),
+[class*="login-mask" i]:has(p + p),
+[class*="vip-mask" i]:has(article),
+[class*="member-mask" i]:has(article),
+[class*="login-mask" i]:has(article) {
+  display: revert !important;
+}
+
+/* ===================================================================
+ * K. 实测硬付费层（v2.0 真实站点探测取样，2026-10）
+ * 只放"确认不是正文容器"的付费提示层；正文本体一律交给 repair.js 判断。
+ * =================================================================== */
+
+/* 财新 / 财新周刊：付费提示层（正文 #Main_Content_Val 由服务端截断，删掉这层只留残留提示） */
+.pc-pay-layer,
+#chargeWallContent,
+#chargeWall,
+.chargeInner,
+[class*="subRightContent" i]:not(body):not(html),
+[class*="cost-uibtn" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* 机器之心 PRO：会员墙外壳（正文在服务端截断） */
+[class*="member-layout" i]:not(body):not(html):not(:has(article)):not(:has(p + p)),
+[class*="btn__no-user" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* The Telegraph：martech-paywall / martech-regwall（z-index 9998 的整幅覆盖） */
+section[class*="martech-paywall" i]:not(:has(article)):not(:has(p + p)),
+section[class*="martech-regwall" i]:not(:has(article)):not(:has(p + p)),
+[class*="martech-paywall" i]:not(body):not(html):not(:has(article)):not(:has(p + p)),
+[class*="martech-regwall" i]:not(body):not(html):not(:has(article)):not(:has(p + p)) {
+  display: none !important;
+}
+
+/* 少数派：付费栏目挽留条（正文是完整试读，不动正文） */
+[class*="fixed-series" i]:not(body):not(html):not(:has(article)):not(:has(p + p)):not(:has(article)):not(:has(p + p)) {
+  display: none !important;
+}
+
+/* 服务端硬截断提示条（repair.js 注入，必须显形） */
+#pb-hardwall-notice {
+  display: block !important;
+}
+
+/* ===================================================================
+ * L. 实测补充（en 组 18 站 + zh 组 18 站取样）
+ * 通用 metered / regwall 类名：nytimes / lemonde / washingtonpost /
+ * theatlantic / businessinsider / telegraph 一网打尽。
+ * 注意：Sourcepoint / OneTrust / Fides 的同意层（id 前缀 sp_message_ / onetrust- / fides-）
+ * 与付费墙在结构上无法区分，清掉只会让站点拿不到内容，本文件对它们不设任何规则。
+ * =================================================================== */
+#gateway-content,
+.vi-gateway-container,
+[class*="meteredContent" i]:not(body):not(html),
+[class*="metered-content" i]:not(body):not(html),
+[class*="teaser-content" i]:not(body):not(html):not(:has(article)):not(:has(p + p)),
+[id^="softwall-" i],
+.softwall-subscribe-overlay,
+[class*="lmd-paywall" i]:not(body):not(html),
+section.paywall:not(:has(article)):not(:has(p + p)),
+[class*="PaywallBarWrapper" i]:not(body):not(html),
+[class*="PaywallInlineBarrierWrapper" i]:not(body):not(html),
+[class*="consumer-marketing-unit--paywall" i]:not(body):not(html) {
+  display: none !important;
+}
+
+/* stratechery 型：WordPress + Memberful 用 CSS 裁切正文（内联 max-height:778px）
+   只解裁切，不隐藏任何正文容器 */
+.is-style-continue-reading,
+.has-continue-reading {
+  max-height: none !important;
+  overflow: visible !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}

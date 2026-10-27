@@ -1,0 +1,201 @@
+/* SPDX-FileCopyrightText: 2026 Paywall Buster contributors */
+/* SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
+/* Paywall Buster — 广告位隐藏（v1.3）
+ * 设计原则：
+ *   1) 只隐藏「高置信度广告容器」——真实站点观测到的类名 + 广告 iframe 域名 + 通用 ad-slot 命名；
+ *   2) 一律 display:none，不用 visibility:hidden（后者仍占位，会留大块空白）；
+ *   3) 正文保护：所有宽泛模式都排除 article/main 内的正文段落；
+ *   4) 视频播放器本体（.cnx-video-container）绝不动，只摘掉它的广告容器层。
+ * 本文件由 manifest content_scripts 在 document_start 注入，先于页面渲染，避免广告闪一下。
+ */
+
+/* ── A. Arc XP / Reuters 广告位（真实观测） ───────────────────────── */
+.ad-slot-module__container__VEdre,
+.ad-slot-module__container__VEdre.ad-slot-module__fixed-height__W8iWX,
+.ad-slot-module__container__VEdre.ad-slot-module__limited-height__pvj8v,
+.ad-slot-module__container__VEdre.ad-slot-module__canvas-container__-IBdf,
+[class*="ad-slot-module__slot" i],
+[class*="ad-slot-module__inner" i],
+[class*="ad-slot-module__canvas" i],
+[id^="reuters_desktop_"][class*="ad-slot" i],
+[id^="reuters_mobile_"][class*="ad-slot" i],
+#reuters_1x1_bouncex,
+[class*="cc-ad-container" i],
+iframe[id^="google_ads_iframe_"],
+div[id^="google_ads_iframe_"][id$="__container__"],
+script#preload-ads {
+  display: none !important;
+}
+
+/* ── B. 吸顶 / 吸底广告条（会盖住正文） ───────────────────────────── */
+.leaderboard-module__slot__aJ19a,
+[class*="leaderboard-module__desktop-sticky" i],
+[class*="leaderboard-module__mobile-sticky" i],
+[class*="sticky-ad" i],
+[class*="ad-sticky" i],
+[class*="anchor-ad" i],
+[class*="floating-ad" i],
+[class*="bottom-ad" i] {
+  display: none !important;
+}
+
+/* ── C. 赞助条 / promo bar（Reuters 的 Refinitiv sticky 条，z-index 1020） ── */
+.refinitiv-promo-bar-module__container__lbSKl,
+[class*="promo-bar-module__container" i],
+[class*="sponsor-bar" i],
+[class*="sponsored-bar" i] {
+  display: none !important;
+}
+
+/* ── D. 原生广告 / 推荐流 ─────────────────────────────────────────── */
+.dianomi_context,
+iframe.dianomi-parent-iframe,
+[class*="outbrain" i],
+[id*="outbrain" i],
+[class*="taboola" i],
+[id*="taboola" i],
+[class*="trc_related_container" i],
+[class*="zergnet" i],
+[class*="revcontent" i],
+[class*="mgid" i] {
+  display: none !important;
+}
+
+/* ── E. Connexity / cnx 视频广告层（保留 .cnx-video-container 本体） ── */
+div.cnx-ad-container,
+div.cnx-ad-bid-slot,
+div.cnx-ad-slot,
+div.cnx-non-linear-ad-container,
+cnx.cnx-ui-ad,
+cnx.cnx-ad-marker,
+cnx.cnx-ad-card {
+  display: none !important;
+}
+
+/* ── F. 通用广告标记 ─────────────────────────────────────────────── */
+.adsbygoogle,
+ins.adsbygoogle,
+[data-ad],
+[data-ad-slot],
+[data-google-query-id],
+[id^="div-gpt-ad"],
+[id^="gpt-passback"],
+[class^="ad-banner"],
+[class*=" ad-banner"],
+[class*="advertisement" i],
+[id*="advertisement" i],
+[class*="advert-" i],
+[aria-label="Advertisement" i],
+iframe[src*="doubleclick.net"],
+iframe[src*="googlesyndication.com"],
+iframe[src*="amazon-adsystem.com"],
+iframe[src*="adsafeprotected.com"],
+iframe[src*="adnxs.com"],
+iframe[src*="criteo."],
+iframe[src*="taboola.com"],
+iframe[src*="outbrain.com"],
+iframe[src*="dianomi.com"],
+iframe[src*="moatads.com"] {
+  display: none !important;
+}
+
+/* ── G. 反广告拦截提示层（站点检测到拦截器后弹出的遮罩） ───────────── */
+[class*="adblock" i],
+[id*="adblock" i],
+[class*="ad-block" i],
+[class*="anti-adblock" i],
+[class*="antiadblock" i],
+[class*="ab-detector" i],
+[class*="adblocker" i],
+[class*="blockaway" i] {
+  display: none !important;
+}
+
+/* ── H. 自家元素保护：广告规则绝不隐藏阅读器与回填正文 ───────────── */
+#pb-fulltext,
+#pb-reader,
+[data-pb-ad-protect] {
+  display: block !important;
+}
+
+/* ── I. 站点布局保护：不得因为广告规则把正文容器变成 display:none ──── */
+/* 刻意不用 article/main 的 display:revert —— 那会覆盖站点自身的 grid/flex，
+   在 Arc XP 一类布局上会把正文挤成一列。selectors 的精确性已经足够。 */
+
+
+/* ══════════════════════════════════════════════════════════════════
+   J. 中文站广告位（v2.0 多平台段）
+
+   百度联盟 / 广点通(腾讯) / 穿山甲(字节) / 阿里妈妈 / 新浪 / 各站自营
+   广告位。这些类名在搜狐、新浪、网易、知乎、CSDN、快科技等站反复出现。
+   一律 display:none，不 remove：站点会检测节点消失并重插。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 百度联盟：cpro / 主题推广 */
+[id^="cproIframe"],
+[id^="cpro_"],
+iframe[id^="cpro"],
+iframe[src*="pos.baidu.com"],
+iframe[src*="cpro.baidu.com"],
+[class*="ec_ad"],
+[class*="ec-ad"],
+[class*="baidu-ad" i],
+[class*="cpro" i],
+[data-cpro],
+
+/* 广点通 / 腾讯广告 */
+[class*="gdt-ad" i],
+[class*="gdt-advert" i],
+[id*="gdt_" i],
+iframe[src*="gdt.qq.com"],
+[class*="tencent-ad" i],
+
+/* 穿山甲 / 巨量 / 字节 */
+[class*="pangle" i],
+[class*="bytedance-ad" i],
+[class*="toutiao-ad" i],
+iframe[src*="pangolin"],
+
+/* 阿里妈妈 / Tanx */
+[class*="tanx" i],
+[id^="tanx"],
+iframe[src*="tanx.com"],
+[class*="alimama" i],
+
+/* 新浪 / 网易 / 搜狐自营 */
+[class*="sina-ad" i],
+[class*="ad_ua" i],
+[class*="ad-ua" i],
+[class*="ad-container" i],
+[class*="ad-wrapper" i],
+[class*="ad-wrap" i],
+[class*="adwrap" i],
+[class*="union-ad" i],
+[class*="ad-union" i],
+[class*="gg-" i][class*="ad" i],
+[id^="gg_"],
+
+/* 通用中文广告挂点 */
+[data-ad-type],
+[data-adunit],
+[data-ad-unit],
+[data-adspot],
+ins[data-ad-client] {
+  display: none !important;
+}
+
+/* 保护：正文容器里的广告位规则不得反噬正文（中文站常见 ad_ 前缀误伤） */
+article [class*="ad-wrap" i]:has(p + p),
+article [class*="ad-wrap" i]:has(article),
+[itemprop="articleBody"] [class*="ad-wrap" i]:has(p + p) {
+  display: revert !important;
+}
+
+/* K. 中文站实测广告挂点（2026-10 探测：新浪自家 sinaads、36氪广告标识卡） */
+[id^="sinaadToolkitBox"],
+[class*="sinaads" i]:not(body):not(html),
+[class*="banner-left-info" i]:not(body):not(html),
+[class*="kr-shadow-wrapper-card" i]:not(body):not(html) {
+  display: none !important;
+}
