@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Paywall Buster · 多平台订阅弹窗与广告阻断器",
   "version": "2.0.0",
-  "description": "浏览器扩展技术学习项目：演示订阅弹层清理、正文修复和广告阻断；仅限非商业学习、研究与技术交流，请遵守目标网站条款和当地法律。",
+  "description": "Chrome/Edge 浏览器扩展：清理订阅弹窗和会员墙遮挡，修复被折叠正文并阻断常见广告；支持 17 类付费墙与 27 个站点档案，仅限非商业学习交流。",
   "minimum_chrome_version": "105",
   "permissions": [
     "storage",

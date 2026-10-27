@@ -1,4 +1,8 @@
-# Paywall Buster · 多平台订阅弹窗与广告阻断器
+# Paywall Buster：Chrome / Edge 付费墙弹窗、正文修复与广告阻断扩展
+
+[![Release](https://img.shields.io/github/v/release/xyva-yuangui/paywall-buster?label=release)](https://github.com/xyva-yuangui/paywall-buster/releases)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-orange)](LICENSE)
 
 > [!IMPORTANT]
 > 本项目是 **source-available 非商业项目**，仅用于浏览器扩展开发、
@@ -9,22 +13,62 @@
 > 法律法规、版权规则以及目标网站的服务条款。本项目与任何媒体、付费墙
 > 供应商或广告平台不存在隶属或合作关系。
 
+Paywall Buster 是一个面向 **Google Chrome / Microsoft Edge** 的
+Manifest V3 浏览器扩展学习项目。打开新闻或博客文章时，它会尝试做三件
+容易理解的事：
+
+1. **清理遮挡文章的弹窗**：订阅墙、会员墙、注册提示、背景遮罩和滚动锁。
+2. **恢复浏览器已经收到的正文**：解除 `max-height` 裁剪、模糊、透明和隐藏状态；如果 DOM 只渲染了一部分，会尝试从 JSON-LD、Fusion 或
+   `__NEXT_DATA__` 中回填。
+3. **隐藏常见广告**：通过 CSS、页面脚本和 88 条网络规则处理广告位、
+   弹窗广告以及常见广告联盟请求。
+
+简单说：**它处理的是页面中已经存在的前端遮挡和内容，不是服务器端付费墙
+破解工具。** 如果文章正文根本没有发送到浏览器，任何前端扩展都无法重新
+生成原文，本项目会明确提示，而不是假装成功。
+
+当前版本 **v2.0.0**。项目从“只识别 Reuters 一家站点”升级为“付费墙
+供应商规则 + 站点档案”两层匹配。
+
+**English:** Paywall Buster is a Manifest V3 Chrome and Edge extension
+for paywall overlay cleanup, client-side article repair, and ad blocking.
+It includes 17 paywall-vendor profiles and 27 site profiles. It does not
+bypass server-side paywalls and is source-available for noncommercial
+learning only.
+
+## 支持哪些平台
+
+| 类型 | 当前支持 |
+|---|---|
+| 桌面浏览器 | Google Chrome 105+、Microsoft Edge 105+ |
+| 其他 Chromium 浏览器 | Brave、Opera、Vivaldi 等理论上兼容，尚未系统测试 |
+| 移动端浏览器 | 不支持 Chrome/Edge Android、iOS 或移动端扩展 |
+| Firefox / Safari | 尚未适配，不作为当前支持平台 |
+| 付费墙供应商 | Piano、Poool、OneCount、Zephr、Conde Nast、Sophi、Pelcro、Memberful、Substack、Ghost、Medium、Arc XP、Newspack、Axate、Vox/Concert、Dow Jones、Financial Times 等 17 类 |
+| 站点档案 | 27 个，包括 Reuters、Telegraph、Washington Post、WSJ、NYT、FT、Bloomberg、Medium、Caixin、36Kr、知乎、CSDN 等 |
+| 广告处理 | 88 条 Manifest V3 网络规则，另有页面级 CSS/JS 清理 |
+
+完整的浏览器、付费墙供应商、站点和限制说明见
+[PLATFORMS.md](PLATFORMS.md)。
+
+## 适合谁
+
+- 想学习 Chrome/Edge Manifest V3、content script、DOM 分析和 DNR 的开发者。
+- 想研究网页弹层、正文裁剪、客户端渲染和广告选择器的人。
+- 需要在合法、非商业场景中调试网页布局和可访问性的人。
+
+**不适合**把“付费全文解锁”当作唯一目标。服务器端不发送正文、需要真实
+登录、验证码或反爬挑战的页面都不在能力范围内。
+
+## 安装与升级
+
 许可证：[PolyForm Noncommercial License 1.0.0](LICENSE)  
 第三方名称与非关联声明：[NOTICE.md](NOTICE.md)  
 贡献要求：[CONTRIBUTING.md](CONTRIBUTING.md)  
-安全报告：[SECURITY.md](SECURITY.md)
-
-Chrome / Edge（Manifest V3）扩展。三件事：
-
-1. **拆弹窗** —— 订阅墙、注册墙、cookie 之外的遮挡层、滚动锁；
-2. **救正文** —— 把被 CSS 裁掉（`max-height + overflow:hidden`）、被 blur/降透明藏起来、被折叠的段落放出来；DOM 里只发了一两段时，从 JSON-LD / Fusion / `__NEXT_DATA__` 里把全文回填；
-3. **清广告** —— CSS 隐藏广告位 + JS 兜底清屏 + 88 条域名级网络拦截（Google GAM / Xandr / PubMatic / Criteo / Taboola / Outbrain / 百度联盟 / 广点通 / 穿山甲 / 阿里妈妈 …）。
-
-当前版本 **v2.0.0**：从"只认 Reuters 一家"升级成"按付费墙供应商 + 站点档案"驱动。一套 Piano / Poool / OneCount / Zephr / Conde / Sophi 规则覆盖几十家站点，站点档案只补哈希类名和特例。
+安全报告：[SECURITY.md](SECURITY.md)  
+版本记录：[CHANGELOG.md](CHANGELOG.md)
 
 ---
-
-## 0. 升级 / 安装
 
 **从旧版升级**
 
@@ -43,7 +87,7 @@ Chrome / Edge（Manifest V3）扩展。三件事：
 
 ---
 
-## 1. 真实站点实测（v2.0，扩展真加载，非脚本注入）
+## 已实测站点（v2.0）
 
 | 站点 | 结果 | 正文 | 可见段 | 可滚高度 | 广告残留 |
 |---|---|---|---|---|---|
@@ -65,7 +109,7 @@ Chrome / Edge（Manifest V3）扩展。三件事：
 
 ---
 
-## 2. 架构
+## 项目结构
 
 ```
 manifest.json          MV3，两条 content_scripts + DNR 规则集
@@ -87,7 +131,7 @@ src/popup.{html,css,js} 面板：站点开关、圈选、阅读模式、诊断
 
 ---
 
-## 3. CMP / cookie 同意层：刻意不动
+## Cookie 同意层为什么保留
 
 Sourcepoint（`sp_message_container_*`）、OneTrust、Fides、Didomi、Cookiebot、Usercentrics 这些是**同意管理**层，不是付费墙。它们和付费墙在结构上无法区分（都是 fixed 全屏、z-index 拉满、文案里有 privacy），但清掉它们不会解锁正文，反而会因为"没同意"被站点继续挡住。
 
@@ -95,7 +139,7 @@ Sourcepoint（`sp_message_container_*`）、OneTrust、Fides、Didomi、Cookiebo
 
 ---
 
-## 4. 诊断
+## 调试与诊断
 
 popup 里点 **诊断**，或控制台执行：
 
@@ -112,7 +156,7 @@ __PB_STATE__          // 计数器
 
 ---
 
-## 5. 测试状态
+## 测试状态
 
 当前公开快照没有包含早期开发中使用的 `test/run.sh` 和 14 个
 CDP 自动化用例，因此不能直接执行 README 旧版本中提到的测试命令。
@@ -142,7 +186,7 @@ CDP 自动化用例，因此不能直接执行 README 旧版本中提到的测�
 
 ---
 
-## 6. 广告屏蔽的三层与副作用
+## 广告拦截工作的三层
 
 1. **CSS**（`ads.css`）：广告位 `display:none`，从 document_start 就生效，广告不闪；
 2. **JS**（`content.js` 的 `sweepAds`）：兜底 inline style 反覆盖、晚插入的广告位、按 iframe src 域名兜底无通用类名的广告壳。**只 display:none，从不 remove** —— 摘掉节点会让站点立刻重插或判定"广告被拦"；
@@ -152,7 +196,7 @@ CDP 自动化用例，因此不能直接执行 README 旧版本中提到的测�
 
 ---
 
-## 7. 已知限制
+## 已知限制
 
 - **服务端截断无解**：正文没发到浏览器，前端任何手段都补不回来（见 §1 列表）。
 - **反爬验证页不处理**：DataDome / PerimeterX / Cloudflare 挑战页上不动任何节点 —— 那是验证页，不是文章页。
@@ -163,7 +207,7 @@ CDP 自动化用例，因此不能直接执行 README 旧版本中提到的测�
 
 ---
 
-## 8. 版本历史
+## 版本历史
 
 - **v1.0** 只杀带 paywall 类名的弹窗 —— 遇到 Reuters 的哈希类名就漏，且一刀切 `[class*="paywall"]` 把正文容器一起藏了。
 - **v1.1** 加评分引擎 + repair 救援 + JSON-LD 回填；修掉"弹窗没了正文也没了"。
@@ -173,7 +217,7 @@ CDP 自动化用例，因此不能直接执行 README 旧版本中提到的测�
 
 ---
 
-## 9. 分发与许可
+## 分发与许可
 
 本项目按 **source-available** 分发，不采用 OSI 定义的开源许可证。
 在 PolyForm Noncommercial License 1.0.0 下，允许非商业用途，禁止
